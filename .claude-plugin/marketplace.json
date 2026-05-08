@@ -1,0 +1,20 @@
+{
+  "name": "zstack-skill",
+  "owner": {
+    "name": "YangWang0514"
+  },
+  "metadata": {
+    "description": "ZStack Cloud 运维助手，提供 CLI、CTL 和 REST API 查询。",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "zstack-skill",
+      "description": "ZStack CLI、CTL、REST API 查询与运维助手。",
+      "source": "./",
+      "skills": [
+        "./skills/zstack-skill"
+      ]
+    }
+  ]
+}
