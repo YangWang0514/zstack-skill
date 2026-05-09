@@ -5,6 +5,25 @@ description: ZStack Cloud 运维助手。快速查询 ZStack CLI 命令、CTL �
 
 # ZStack Cloud 运维助手 Skill
 
+## 启动前更新检查
+
+在处理用户问题前，优先尝试运行本 skill 内置的更新检查脚本：
+
+```bash
+python3 skills/zstack-skill/bin/zstack-skill-update-check
+```
+
+该检查最多每 24 小时访问一次 GitHub 上的 `VERSION` 文件。检查失败时静默跳过，继续正常回答用户的 ZStack 问题。
+
+如果脚本提示有新版本，只提醒用户手动执行：
+
+```text
+/plugin update zstack-skill
+/reload-plugins
+```
+
+不要静默更新插件，也不要声称当前会话会自动加载更新后的 skill。
+
 这是一个专门用于 ZStack Cloud 云平台运维的技能，帮助用户快速查找和使用：
 
 1. **CLI 命令** (`zstack-cli`) - 云资源的命令行管理
@@ -167,3 +186,4 @@ Grep "API名称" references/PD3001_ZStack_Cloud_V5.4.0_api手册.md
 2. **参数详解**: 每个API的完整参数说明在原文档中
 3. **版本兼容**: 注意不同模块的版本差异
 4. **权限要求**: 某些操作需要特定权限
+5. **更新机制**: 更新检查只提示用户手动更新，不静默执行插件更新；更新后需要 `/reload-plugins` 或重启 Claude Code 才能生效

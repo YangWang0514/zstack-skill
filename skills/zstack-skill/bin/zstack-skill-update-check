@@ -1,0 +1,65 @@
+#!/usr/bin/env python3
+import json
+import pathlib
+import sys
+import time
+import urllib.request
+
+CURRENT_VERSION = "1.1.0"
+VERSION_URL = "https://raw.githubusercontent.com/YangWang0514/zstack-skill/main/skills/zstack-skill/VERSION"
+CHECK_INTERVAL_SECONDS = 24 * 60 * 60
+STATE_PATH = pathlib.Path.home() / ".zstack-skill" / "update-check.json"
+
+
+def parse_version(value):
+    parts = []
+    for part in value.strip().split("."):
+        digits = "".join(ch for ch in part if ch.isdigit())
+        parts.append(int(digits or 0))
+    return tuple(parts)
+
+
+def read_state():
+    try:
+        return json.loads(STATE_PATH.read_text())
+    except Exception:
+        return {}
+
+
+def write_state(state):
+    STATE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    STATE_PATH.write_text(json.dumps(state, ensure_ascii=False))
+
+
+def main():
+    now = int(time.time())
+    state = read_state()
+
+    if now - int(state.get("last_check", 0)) < CHECK_INTERVAL_SECONDS:
+        return 0
+
+    state["last_check"] = now
+
+    try:
+        with urllib.request.urlopen(VERSION_URL, timeout=5) as response:
+            remote_version = response.read().decode("utf-8").strip()
+    except Exception:
+        write_state(state)
+        return 0
+
+    state["last_seen_version"] = remote_version
+    write_state(state)
+
+    if parse_version(remote_version) > parse_version(CURRENT_VERSION):
+        print(
+            "zstack-skill 检测到新版本 "
+            f"{remote_version}（当前 {CURRENT_VERSION}）。可手动运行 "
+            "`/plugin update zstack-skill` 更新；更新后请运行 "
+            "`/reload-plugins` 或重启 Claude Code 后生效。"
+        )
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())
